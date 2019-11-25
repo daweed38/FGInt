@@ -75,10 +75,11 @@ class FGIntDaemonHandler(socketserver.StreamRequestHandler):
                    elif cmd == 'store':
                        if len(rcvdatatab) > 1:
                            store_data = "Storing Data " + str(rcvdatatab) + "\r\n"
+                           self.wfile.write(store_data.encode('utf-8'))
                            self.storeData(rcvdatatab)
                        else:
                            store_data = "Store Command not Reconized\r\n"
-                       self.wfile.write(store_data.encode('utf-8'))
+                           self.wfile.write(store_data.encode('utf-8'))
 
                    else:
                        notreco = "Command Not Reconized : " + cmd + "\r\n"
@@ -104,8 +105,21 @@ class FGIntDaemonHandler(socketserver.StreamRequestHandler):
         return show_data
 
     def storeData(self, rcvdatatab):
-        for item in rcvdatatab:
-            print(item)
+        print("DATA  : {}".format(rcvdatatab))
+        with open('Config/' + rcvdatatab[2] + '/devices.cfg', 'wb') as deviceconf:
+            while True:
+                self.data = self.rfile.readline().strip()
+                stordata = self.data.decode('utf-8')
+                if len(stordata) > 0:
+                    if stordata == 'EOF':
+                        print("Breaking Store process ...")
+                        store_data = "No more data to Store ..."
+                        self.wfile.write(store_data.encode('utf-8'))
+                        break
+                    print("Data To Store : {}".format(stordata))
+                    deviceconf.write(self.data+b'\n')
+        deviceconf.close()
+
 
     def getVersion(self):
         return "1.0"
