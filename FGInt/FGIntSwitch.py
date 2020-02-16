@@ -162,13 +162,16 @@ class RotarySwitch:
     ###############
     # Constructor
     ###############
-    def __init__(self, device, name, nbpos, port, pins, values, valuestype, node, debug=0):
+    #def __init__(self, device, name, nbpos, port, pins, values, valuestype, node, debug=0):
+    def __init__(self, device, name, nbpos, pins, values, valuestype, node, debug=0):
         self.debug = debug
         self.device = device
         self.name = name
         self.nbpos = int(nbpos)
-        self.port = str(port)
-        self.pins = pins.split(',')
+        #self.port = str(port)
+        #self.pins = pins.split(',')
+        self.pins = {}
+        self.createPins(pins)
         self.values = values.split(',')
         self.valuestype = valuestype
         self.node = node
@@ -176,7 +179,7 @@ class RotarySwitch:
         self.swstate = 0
         if self.debug == 5:
             print("######################################################################")
-            print("# Creation du Rotary Switch {} sur le port {}".format(self.name, self.port))
+            print("# Creation du Rotary Switch {}".format(self.name))
             print("# du device {} de class {}".format(self.device.devicename, self.device.__class__.__name__))
             for i in range(0, len(self.pins)):
                 print("# Pin {} / Input {} => Value {}".format(i+1, self.pins[i], self.values[i]))
@@ -197,6 +200,16 @@ class RotarySwitch:
     ###############
     # Methode
     ###############
+    def createPins(self, pins):
+        pintab = pins.split(',')
+        for p in range(self.nbpos):
+            # print("Pos {} {} {}".format(p, pintab[p], type(pintab[p])))
+            port = pintab[p][0]
+            pin = pintab[p][1]
+            self.pins[p] = {'port': port, 'pin': pin}
+        
+        #print(self.pins)
+
     def getValueType(self):
         return self.valuestype
 
@@ -204,9 +217,12 @@ class RotarySwitch:
         return self.node
 
     def getSwitchState(self):
-        for i in range(0, len(self.pins)):
-            if self.device.getPin(self.port, int(self.pins[i])) == 1:
+        for i in range(0, self.nbpos):
+            port = self.pins[i]['port']
+            pin = int(self.pins[i]['pin'])
+            if self.device.getPin(port, pin) == 1:
                 self.swstate = self.values[i]
+        #print(self.swstate)
         return self.swstate
 
 class ToogleSwitch:

@@ -54,3 +54,21 @@ oldcypher = ''
 # Interface INT1 Creation (using int1.cfg configuration file)
 # Configuration file is read & store in memory
 INT1 = FGINT('radiopanel.cfg')
+
+########################################
+# LEDPACK1
+########################################
+STBYFREQ = INT1.getElement('STBYFREQ')
+STBYFREQ.setStatus('OFF')
+ACTVFREQ = INT1.getElement('ACTVFREQ')
+ACTVFREQ.setStatus('OFF')
+
+VHF1SWL = INT1.getElement('VHF1SWL')
+VHF2SWL = INT1.getElement('VHF2SWL')
+VHF3SWL = INT1.getElement('VHF3SWL')
+
+########################################
+# LEDPACK & IOPACK Activation
+########################################
+# LEDPACK1 Device Activation
+LEDPACK1.configMCP(1)
