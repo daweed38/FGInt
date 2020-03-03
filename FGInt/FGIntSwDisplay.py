@@ -84,19 +84,21 @@ class SwitchLight:
     # state  = 'ON' or 'OFF'
     def setLightState(self, state):
         self.state = state
+        cnt = 0
         if self.debug == 4:
             print("Updating Switch Lite to : {}".format(state))
-        if self.activemode == 1:
-            if self.state == 'ON':
-                self.device.setOut(self.port, self.row, self.out1, 1)
-            elif self.state == 'OFF':
-                self.device.setOut(self.port, self.row, self.out1, 0)
+        for out in range(self.nblight):
+            if self.activemode == 1:
+                if self.state == 'ON':
+                    self.device.setOut(self.port, self.row, self.out1 + out, 1)
+                elif self.state == 'OFF':
+                    self.device.setOut(self.port, self.row, self.out1 + out, 0)
+                else:
+                    return false
             else:
-                return false
-        else:
-            if self.state == 'ON':
-                self.device.setOut(self.port, self.row, self.out1, 0)
-            elif self.state == 'OFF':
-                self.device.setOut(self.port, self.row, self.out1, 1)
-            else:
-                return false
+                if self.state == 'ON':
+                    self.device.setOut(self.port, self.row, self.out1 + out, 0)
+                elif self.state == 'OFF':
+                    self.device.setOut(self.port, self.row, self.out1 + out, 1)
+                else:
+                    return false
