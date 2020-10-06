@@ -34,7 +34,7 @@ from RotaryEncoder import EncoderWorker as WORKER
 ########################################
 BOUNCETIME = 1000
 BUFFERSIZE = 1024
-FGINTADDR = '192.168.0.51'
+FGINTADDR = '192.168.0.61'
 FGINTPORT = 7800
 FGADDR = '192.168.0.150'
 FGPORT = 7850
@@ -186,22 +186,16 @@ while loop == True:
             if float(props_tree['dc-ess']) > 25:
                 if int(props_tree['annun-test']) != 1:
                     # QNH Cpt
-                    if int(props_tree['efis0-std']) == 1:
+                    if int(props_tree['qnh-std']) == 1:
                         QNHCPTDSP.writeDisplay(' Std', 0)
-                    else:
-                        if int(props_tree['efis0-mode']) == 1:
-                            QNHCPTDSP.writeDisplay(str(props_tree['efis0-inhg'].replace('.','')), 1)
-                        else:
-                            QNHCPTDSP.writeDisplay(str(props_tree['efis0-hpa']), 0)
-
-                    # QNH Fo
-                    if int(props_tree['efis0-std']) == 1:
                         QNHFODSP.writeDisplay(' Std', 0)
                     else:
-                        if int(props_tree['efis0-mode']) == 1:
-                            QNHFODSP.writeDisplay(str(props_tree['efis0-inhg'].replace('.','')), 1)
+                        if int(props_tree['qnh-mode']) == 1:
+                            QNHCPTDSP.writeDisplay(str(props_tree['qnh-inhg'].replace('.','')), 1)
+                            QNHFODSP.writeDisplay(str(props_tree['qnh-inhg'].replace('.','')), 1)
                         else:
-                            QNHFODSP.writeDisplay(str(props_tree['efis0-hpa']), 0)
+                            QNHCPTDSP.writeDisplay(str(props_tree['qnh-hpa']), 0)
+                            QNHFODSP.writeDisplay(str(props_tree['qnh-hpa']), 0)
                 else:
                     QNHCPTDSP.writeDisplay(str('8888'), 0)
                     QNHFODSP.writeDisplay(str('8888'), 0)
@@ -285,7 +279,6 @@ while loop == True:
             else:
                 input_tree['EFIS0STDSW'] = 0
 
-            '''
             EFIS0STDSW = INT1.getElement('EFIS0STDSW')
             EFIS0FDSW = INT1.getElement('EFIS0FDSW')
             EFIS0ILSSW = INT1.getElement('EFIS0ILSSW')
@@ -294,7 +287,6 @@ while loop == True:
             EFIS0VORDSW = INT1.getElement('EFIS0VORDSW')
             EFIS0NDBSW = INT1.getElement('EFIS0NDBSW')
             EFIS0ARPTSW  = INT1.getElement('EFIS0ARPTSW')
-            '''
 
             if EFIS0FDSW.getMillis() > BOUNCETIME and int(EFIS0FDSW.getInputState()) == 1:
                 input_tree['EFIS0FDSW'] = 1
@@ -355,10 +347,11 @@ while loop == True:
             ########################################
             cypher = hashlib.md5(datastr.encode('utf-8')).digest()
             if cypher != oldcypher:
-                print("DATA : {} | PROPS : {}".format(datastr, props_tree))
+                #print("DATA : {} | PROPS : {}".format(datastr, props_tree))
                 sockclient.send(bytes(datastr, 'utf-8'))
                 sockclient.send(bytes("\n", 'utf8'))
                 oldcypher = cypher
+
     finally:
         # Clean up device
         LEDPACK1.Stop()

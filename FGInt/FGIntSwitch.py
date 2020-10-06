@@ -153,6 +153,7 @@ class DoubleSwitch:
 
 class RotarySwitch:
     """
+    Rotary Switch
     """
 
     ###############
@@ -163,14 +164,19 @@ class RotarySwitch:
     # Constructor
     ###############
     #def __init__(self, device, name, nbpos, port, pins, values, valuestype, node, debug=0):
-    def __init__(self, device, name, nbpos, pins, values, valuestype, node, debug=0):
+    def __init__(self, device, name, nbpos, pins, values, valuestype, node, bincode, debug=0):
         self.debug = debug
         self.device = device
         self.name = name
+        self.bincode = int(bincode)
         self.nbpos = int(nbpos)
         #self.port = str(port)
         #self.pins = pins.split(',')
         self.pins = {}
+        self.pinA = []
+        self.maskA = 0
+        self.pinB = []
+        self.maskB = 0
         self.createPins(pins)
         self.values = values.split(',')
         self.valuestype = valuestype
@@ -202,13 +208,34 @@ class RotarySwitch:
     ###############
     def createPins(self, pins):
         pintab = pins.split(',')
-        for p in range(self.nbpos):
+        #for p in range(self.nbpos):
+        for p in range(len(pintab)):
             # print("Pos {} {} {}".format(p, pintab[p], type(pintab[p])))
             port = pintab[p][0]
             pin = pintab[p][1]
             self.pins[p] = {'port': port, 'pin': pin}
-        
         #print(self.pins)
+        for pin, pindef in self.pins.items():
+            if pindef['port'] == 'A':
+                self.pinA.append(pindef)
+                pinmasknb = int(pindef['pin']) - 1
+                pinmask = 1 << pinmasknb
+                self.maskA = int(self.maskA) | pinmask
+                #print("Pin : {} | Mask Pin Nb: {} | Mask Pin : {}".format(pindef['pin'], pinmasknb, bin(pinmask) ))
+            else:
+                self.pinB.append(pindef)
+                pinmasknb = int(pindef['pin']) - 1
+                pinmask = 1 << pinmasknb
+                self.maskB = int(self.maskB) | pinmask
+                #print("Pin : {} | Mask Pin Nb: {} | Mask Pin : {}".format(pindef['pin'], pinmasknb, bin(pinmask) ))
+                
+        #print("A => {} : {} [Mask : {}]\nB => {} : {} [Mask : {}]".format(self.pinA, len(self.pinA), bin(self.maskA), self.pinB, len(self.pinB), bin(self.maskB)))
+
+    def getPins(self):
+        return self.pins
+
+    def getValues(self):
+        return self.values
 
     def getValueType(self):
         return self.valuestype
@@ -217,11 +244,42 @@ class RotarySwitch:
         return self.node
 
     def getSwitchState(self):
-        for i in range(0, self.nbpos):
-            port = self.pins[i]['port']
-            pin = int(self.pins[i]['pin'])
-            if self.device.getPin(port, pin) == 1:
-                self.swstate = self.values[i]
+        if (self.bincode == 1):
+            #print("Reading Rotary Binary Code Switches")
+            if len(self.pinA) > 0:
+                #print("Reading Port A")
+                #print(bin(self.device.getRegister('gpioa')))
+                #print(bin(self.device.getRegister('gpioa') & self.maskA))
+                swportAval = self.device.getRegister('gpioa') & self.maskA
+                if swportBval > 0:
+                    #print("Switch Value != 0 : {} | {}".format(bin(swportAval), self.pinA[0]['pin']))
+                    strmask = int(self.pinA[0]['pin']) - 1
+                    idxval = int(bin(swportAval)[:-strmask], 2)
+                else:
+                    #print("Switch Value = 0 :{}".format(bin(swportAval)))
+                    idxval = 0
+            elif len(self.pinB) > 0:
+                #print("Reading Port B")
+                #print(bin(self.device.getRegister('gpiob')))
+                #print(bin(self.device.getRegister('gpiob') & self.maskB))
+                swportBval = self.device.getRegister('gpiob') & self.maskB
+                if swportBval > 0:
+                    #print("Switch Value != 0 : {} | {}".format(bin(swportBval), self.pinB[0]['pin']))
+                    strmask = int(self.pinB[0]['pin']) - 1
+                    idxval = int(bin(swportBval)[:-strmask], 2)
+                else:
+                    #print("Switch Value = 0 :{}".format(bin(swportBval)))
+                    idxval = 0
+            #print("Index Value : {} Len Value : {}".format(idxval, len(self.values)))
+            #print(self.values[idxval])
+            if (idxval <= (len(self.values) - 1)):
+               self.swstate = self.values[idxval]
+        else:
+            for i in range(0, self.nbpos):
+                port = self.pins[i]['port']
+                pin = int(self.pins[i]['pin'])
+                if self.device.getPin(port, pin) == 1:
+                    self.swstate = self.values[i]
         #print(self.swstate)
         return self.swstate
 

@@ -56,6 +56,8 @@ class HT16K33:
         1:0x01, 2:0x03, 3:0x05, 4:0x07, 5:0x09, 6:0x0B, 7:0x0D, 8:0x0F
     }
 
+    interRegister = 0x60
+
     ###############
     # Constructor
     ###############
@@ -65,10 +67,10 @@ class HT16K33:
         self.deviceaddr = deviceaddr
         self.devicetype = 'HT16K33'
         self.state = 0
-        self.i2c = I2CDevice(self.devicename, self.deviceaddr, self.debug)
+        self.i2c = I2CDevice(self.devicename, int(self.deviceaddr, 16), self.debug)
         if self.debug == 2:
             print("######################################################################")
-            print("# Initialisation du Device {} à l'adresse {}".format(self.devicename, hex(self.deviceaddr)))
+            print("# Initialisation du Device {} à l'adresse {}".format(self.devicename, self.deviceaddr))
             print("######################################################################")
             print("\r")
 
@@ -95,9 +97,9 @@ class HT16K33:
                 print("# Activation du device {}".format(self.devicename))
                 print("######################################################################")
                 print("\r")
-            self.i2c.writeRegister(0x21, 0x00)
+            self.i2c.WriteRegister(0x21, 0x00)
             for i in self.comregisters:
-                self.i2c.writeRegister(self.comregisters[i], 0x00)
+                self.i2c.WriteRegister(self.comregisters[i], 0x00)
         else:
             if int(self.debug) == 2:
                 print("######################################################################")
@@ -105,8 +107,8 @@ class HT16K33:
                 print("######################################################################")
                 print("\r")
             for i in self.comregisters:
-                self.i2c.writeRegister(self.comregisters[i], 0x00)
-            self.i2c.writeRegister(0x20, 0x00)
+                self.i2c.WriteRegister(self.comregisters[i], 0x00)
+            self.i2c.WriteRegister(0x20, 0x00)
         self.Stop()
 
     # Methode Start()
@@ -114,7 +116,7 @@ class HT16K33:
     def Start(self):
         if self.state != 1:
             self.state = 1
-            self.i2c.writeRegister(0x81, 0x00)
+            self.i2c.WriteRegister(0x81, 0x00)
         return self.state
 
     # Methode Stop()
@@ -122,19 +124,19 @@ class HT16K33:
     def Stop(self):
         if self.state != 0:
             self.state = 0
-            self.i2c.writeRegister(0x80, 0x00)
+            self.i2c.WriteRegister(0x80, 0x00)
         return self.state
 
     # getStatus()
     def getStatus(self):
         return self.state
 
-    # Methode getComRegister(com)
-    def getComRegister(self, com):
+    # Methode GetComRegister(com)
+    def GetComRegister(self, com):
         return self.comregisters[com]
     
-    # Methode getComPortRegister(port, com)
-    def getComPortRegister(self, port, com):
+    # Methode GetComPortRegister(port, com)
+    def GetComPortRegister(self, port, com):
         if port == 'A':
             return self.RegistersA[com]
         else:
@@ -155,6 +157,17 @@ class HT16K33:
     def getAddress(self):
         return self.deviceaddr
 
+    # getInterRegister()
+    # return Interruption Register value
+    def getInterRegister(self):
+        #print("device addr {}, device register {}".format(self.deviceaddr, hex(self.interRegister)))
+        return self.i2c.ReadRegister(self.interRegister)
+
+    # getScanRow(rowaddr)
+    # return value of the scanned row
+    def getScanRow(self, rowaddr):
+        return self.i2c.ReadRegister(rowaddr)
+
     # Methode setBrightness(brightness)
     # Permet de Regler la luminosité des Sorties
     # du HT16K33
@@ -165,7 +178,7 @@ class HT16K33:
             print("# Modification de Luminosité : {} => Registre : {}".format(brightness, registeraddr))
             print("######################################################################")
             print("\r")
-        self.i2c.writeRegister(registeraddr, 0x00)
+        self.i2c.WriteRegister(registeraddr, 0x00)
 
     # setBlinkRate(blinkrate)
     # Permet de Relgler la frequence de clignottement 
@@ -193,7 +206,7 @@ class HT16K33:
             print("# Modification de la fréquence de clignoteement : {}".format(blinkrate))
             print("######################################################################")
             print("\r")
-        self.i2c.writeRegister(registeraddr, 0x00)
+        self.i2c.WriteRegister(registeraddr, 0x00)
 
     # clearBuffers()
     # Permet de remettre à zero tous les buffers
@@ -205,7 +218,7 @@ class HT16K33:
             print("######################################################################")
             print("\r")
         for i in self.comregisters:
-            self.i2c.writeRegister(self.comregisters[i], 0x00)
+            self.i2c.WriteRegister(self.comregisters[i], 0x00)
 
     # clearBuffer(register)
     # Permet de mettre a zero un buffer
@@ -216,7 +229,7 @@ class HT16K33:
             print("# Réinitialisation du Buffer de Sortie {} a zero (0x00)".format(register))
             print("######################################################################")
             print("\r")
-        self.i2c.writeRegister(self.comregisters[register], 0x00)
+        self.i2c.WriteRegister(self.comregisters[register], 0x00)
 
     # setRow(row, data)
     # Permet de Mettre à jour le buffer de Sortie
@@ -235,7 +248,7 @@ class HT16K33:
             print("######################################################################")
             print("\r")
         if registeraddr != None:
-            self.i2c.writeRegister(registeraddr, data)
+            self.i2c.WriteRegister(registeraddr, data)
 
     # setOut(row, out, value)
     # Permet de Mettre à jour de la sortie dans un row
@@ -253,4 +266,4 @@ class HT16K33:
             print("######################################################################")
             print("\r")
         if int(row) != 0:
-            self.i2c.writeBit(registeraddr, out, value)
+            self.i2c.WriteBit(registeraddr, out, value)

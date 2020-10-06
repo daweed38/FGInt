@@ -44,7 +44,7 @@ class FGInterface:
         self.devices = {}
         self.auxconf = {}
         self.elements = {}
-        self.readConfig()
+        self.config = self.readConfig()
         self.intname = self.getConfigOption('INT', 'intname')
         
         if int(self.debug) == 1:
@@ -105,8 +105,10 @@ class FGInterface:
             if self.debug == 1:
                 print(self.modules)
 
+        #print(self.config)
+
         self.createDevices()
-            
+
         if 'AUXCONF' in self.config:
             self.loadAuxConfigs()
 
@@ -210,10 +212,10 @@ class FGInterface:
             print("# Device : {}".format(devicename))
         for option in deviceconfig.options(devicename):
             if self.debug == 1:
-                print("# - {} : {} [ Value Type {}".format(option, deviceconfig[devicename][option], type(deviceconfig[devicename][option])))
+                print("# - {} : {}".format(option, deviceconfig[devicename][option]))
             self.devices[devicename]['CONF'][option] = deviceconfig[devicename][option]
         mod = self.getModule(deviceconfig[devicename]['devicetype'])
-        self.devices[devicename]['OBJECT'] = mod(deviceconfig[devicename]['devicename'], int(deviceconfig[devicename]['deviceaddr'], 16), self.debug)
+        self.devices[devicename]['OBJECT'] = mod(deviceconfig[devicename]['devicename'], str(deviceconfig[devicename]['deviceaddr']), self.debug)
         return self.devices[devicename]['OBJECT']
 
     # createDevices()
