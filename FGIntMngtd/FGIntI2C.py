@@ -129,7 +129,7 @@ class I2CDevice(I2CBus):
     # Constructor
     ###############
     def __init__(self, devicename, deviceaddr, debug=0):
-        super().__init__()
+        #super().__init__()
         self.debug = debug
         self.bus = self.getPiI2CBusNumber()
         self.devicename = devicename
@@ -167,6 +167,7 @@ class I2CDevice(I2CBus):
     # readRegister(registeraddr)
     # Retourne la valeur d'un registre à l'adresse 'registeraddr'
     def readRegister(self, registeraddr):
+        #print("Device Addr {}  [{}] Register Addr {} [{}]".format(self.deviceaddr, type(self.deviceaddr), registeraddr, type(registeraddr)))
         regval = self.i2c.read_byte_data(self.deviceaddr, registeraddr)
         if int(self.debug) == 3:
             print("######################################################################")
