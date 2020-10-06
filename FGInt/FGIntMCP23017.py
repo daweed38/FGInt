@@ -61,7 +61,7 @@ class MCP23017:
     def __init__(self, devicename, deviceaddr, debug=0):
         self.debug = debug
         self.devicename = devicename
-        self.deviceaddr = deviceaddr
+        self.deviceaddr = int(deviceaddr, 16)
         self.devicetype = 'MCP23017'
         self.registeraddrbank = self.registersaddr0
         self.bankmode = 0 
@@ -112,7 +112,7 @@ class MCP23017:
                 if self.debug == 2:    
                     print("######################################################################")
                     print("# IODIRA / IODIRB {}".format(register, self.getRegisterAddr(register)))
-                    print("######################################################################")
+                    rint("######################################################################")
                 self.setRegister(register, 0xff)
             else:
                 if self.debug == 2:
