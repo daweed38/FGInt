@@ -59,12 +59,12 @@ class Keypad:
         GPIO.setup(self.intpin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(self.intpin, GPIO.RISING, self.catchKey, bouncetime=self.bounce)
         self.device.getInterRegister()
-        self.device.i2c.ReadRegister(0x40)
-        self.device.i2c.ReadRegister(0x41)
-        self.device.i2c.ReadRegister(0x42)
-        self.device.i2c.ReadRegister(0x43)
-        self.device.i2c.ReadRegister(0x43)
-        self.device.i2c.ReadRegister(0x45)
+        self.device.i2c.readRegister(0x40)
+        self.device.i2c.readRegister(0x41)
+        self.device.i2c.readRegister(0x42)
+        self.device.i2c.readRegister(0x43)
+        self.device.i2c.readRegister(0x43)
+        self.device.i2c.readRegister(0x45)
         if (self.debug == 10):
             print("######################################################################")
             print("Keypad {} creation {} col x {} row".format(self.dispname, self.nbcol, self.nbrow))
@@ -92,7 +92,7 @@ class Keypad:
     def catchKey(self, pin):
         if (self.getInterRegister() != 0 and self.keypressed == 0):
             for row in range(len(self.rowsaddr)):
-                rowval = self.device.i2c.ReadRegister(self.rowsaddr[row])
+                rowval = self.device.i2c.readRegister(self.rowsaddr[row])
                 #print("Reading Line {} addr : {} value : {} Inter Register : {}".format(
                 #    row, hex(self.rowsaddr[row]), bin(rowval).zfill(8), self.getInterRegister()
                 #))
