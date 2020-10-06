@@ -60,7 +60,7 @@ class I2CBus:
             with open('/proc/cpuinfo','r') as f:
                 for line in f:
                     if line.startswith('CPU revision'):
-                        return 1 if line.rstrip()[-1] in ['2','3'] else 2
+                        return 1 if line.rstrip()[-1] in ['2'] else 2
         except:
             return 0
 
