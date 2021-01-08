@@ -112,7 +112,7 @@ class MCP23017:
                 if self.debug == 2:    
                     print("######################################################################")
                     print("# IODIRA / IODIRB {}".format(register, self.getRegisterAddr(register)))
-                    rint("######################################################################")
+                    print("######################################################################")
                 self.setRegister(register, 0xff)
             else:
                 if self.debug == 2:
